@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}{{ anime.title }} - KAIRO{% endblock %}
+
+{% block content %}
+<style>
+    .anime-detail { display: flex; gap: 30px; flex-wrap: wrap; margin-bottom: 30px; background: #181922; padding: 20px; border-radius: 8px; }
+    .anime-poster { width: 220px; border-radius: 8px; object-fit: cover; }
+    .anime-info { flex: 1; min-width: 250px; }
+    .episodes-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin-top: 15px; }
+    .ep-card { background: #222531; padding: 12px; border-radius: 6px; text-decoration: none; color: white; transition: background 0.2s; display: flex; justify-content: space-between; align-items: center; }
+    .ep-card:hover { background: #e50914; }
+</style>
+
+<div class="anime-detail">
+    <img src="{{ anime.poster_url }}" class="anime-poster" alt="{{ anime.title }}">
+    <div class="anime-info">
+        <h1 style="margin-bottom: 15px; color: #e50914;">{{ anime.title }}</h1>
+        <p style="color: #ccc; line-height: 1.6;">{{ anime.description or 'No description available.' }}</p>
+    </div>
+</div>
+
+<h3 style="border-left: 4px solid #e50914; padding-left: 10px; margin-bottom: 15px;">Episodes List</h3>
+{% if not episodes %}
+    <p style="color: #aaa;">Is anime ke episodes jald hi add honge.</p>
+{% else %}
+    <div class="episodes-list">
+        {% for ep in episodes %}
+            <a href="/watch/{{ ep.id }}" class="ep-card">
+                <span>Ep {{ ep.episode_number }}: {{ ep.title }}</span>
+                <span style="font-size: 12px;">▶</span>
+            </a>
+        {% endfor %}
+    </div>
+{% endif %}
+{% endblock %}
