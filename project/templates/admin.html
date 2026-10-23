@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+{% block title %}Admin Dashboard - KAIRO{% endblock %}
+
+{% block content %}
+<style>
+    .admin-grid { display: grid; grid-template-columns: 1fr 2fr; gap: 30px; }
+    .panel { background: #181922; padding: 20px; border-radius: 8px; margin-bottom: 25px; }
+    .panel h3 { margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 8px; color: #e50914; }
+    .form-group { margin-bottom: 12px; }
+    .form-group label { display: block; margin-bottom: 4px; font-size: 13px; color: #aaa; }
+    .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 8px; background: #0f1015; border: 1px solid #333; color: white; border-radius: 4px; }
+    .anime-row { background: #222531; padding: 15px; border-radius: 6px; margin-bottom: 15px; }
+</style>
+
+<h2>Admin Control Dashboard</h2>
+<p style="color: #888; margin-bottom: 20px;">Manage Animes, Episodes & Security Settings</p>
+
+<div class="admin-grid">
+    <div>
+        <!-- Add Anime Panel -->
+        <div class="panel">
+            <h3>Add New Anime</h3>
+            <form action="/admin/anime/add" method="POST">
+                <div class="form-group">
+                    <label>Anime Title</label>
+                    <input type="text" name="title" required placeholder="e.g. Naruto">
+                </div>
+                <div class="form-group">
+                    <label>Poster Image URL</label>
+                    <input type="url" name="poster_url" required placeholder="https://image-link.com/poster.jpg">
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea name="description" rows="3" placeholder="Anime description..."></textarea>
+                </div>
+                <button type="submit" class="btn" style="width: 100%;">+ Add Anime</button>
+            </form>
+        </div>
+
+        <!-- Change Password Panel -->
+        <div class="panel">
+            <h3>Change Password</h3>
+            <form action="/admin/change-password" method="POST">
+                <div class="form-group">
+                    <label>Old Password</label>
+                    <input type="password" name="old_password" required>
+                </div>
+                <div class="form-group">
+                    <label>New Password</label>
+                    <input type="password" name="new_password" required>
+                </div>
+                <button type="submit" class="btn btn-secondary" style="width: 100%;">Update Password</button>
+            </form>
+        </div>
+    </div>
+
+    <div>
+        <!-- Anime & Episodes List Panel -->
+        <div class="panel">
+            <h3>Manage Animes & Episodes</h3>
+            {% if not animes %}
+                <p style="color: #888;">Koi anime nahi mila.</p>
+            {% else %}
+                {% for anime in animes %}
+                    <div class="anime-row">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <strong style="font-size: 18px; color: #fff;">{{ anime.title }}</strong>
+                            <a href="/admin/anime/delete/{{ anime.id }}" class="btn btn-danger" style="padding: 4px 8px; font-size: 12px;" onclick="return confirm('Kya aap ise delete karna chahte hain?')">Delete Anime</a>
+                        </div>
+
+                        <!-- Add Episode Form -->
+                        <details style="margin-top: 10px; background: #181922; padding: 10px; border-radius: 4px;">
+                            <summary style="cursor: pointer; color: #e50914; font-weight: bold;">+ Add Episode to {{ anime.title }}</summary>
+                            <form action="/admin/episode/add/{{ anime.id }}" method="POST" style="margin-top: 10px;">
+                                <div style="display: flex; gap: 10px;">
+                                    <div class="form-group" style="flex: 1;">
+                                        <label>Ep No.</label>
+                                        <input type="number" name="episode_number" required placeholder="1">
+                                    </div>
+                                    <div class="form-group" style="flex: 3;">
+                                        <label>Episode Title</label>
+                                        <input type="text" name="title" required placeholder="Title">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>🇮🇳 Hindi Video Server URL (Embed Link)</label>
+                                    <input type="url" name="hindi_url" placeholder="https://player-link.com/embed/123">
+                                </div>
+                                <div class="form-group">
+                                    <label>🇬🇧 English Video Server URL (Embed Link)</label>
+                                    <input type="url" name="english_url" placeholder="https://player-link.com/embed/456">
+                                </div>
+                                <button type="submit" class="btn" style="padding: 6px 12px; font-size: 13px;">Save Episode</button>
+                            </form>
+                        </details>
+
+                        <!-- Existing Episodes -->
+                        <div style="margin-top: 10px;">
+                            <small style="color: #aaa;">Episodes Added ({{ anime.episodes|length }}):</small>
+                            <ul style="list-style: none; margin-top: 5px;">
+                                {% for ep in anime.episodes %}
+                                    <li style="display: flex; justify-content: space-between; background: #14151c; padding: 6px 10px; border-radius: 3px; margin-bottom: 4px; font-size: 13px;">
+                                        <span>Ep {{ ep.episode_number }}: {{ ep.title }}
+                                            {% if ep.hindi_url %}🇮🇳{% endif %}
+                                            {% if ep.english_url %}🇬🇧{% endif %}
+                                        </span>
+                                        <a href="/admin/episode/delete/{{ ep.id }}" style="color: #ff5252; text-decoration: none;" onclick="return confirm('Delete ep?')">Delete</a>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

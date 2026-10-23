@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block title %}Watch {{ episode.title }} - {{ anime.title }}{% endblock %}
+
+{% block content %}
+<style>
+    .player-section { background: #181922; padding: 20px; border-radius: 8px; }
+    .video-box { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; background: #000; border-radius: 8px; margin-bottom: 20px; }
+    .video-box iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+    .lang-btns { display: flex; gap: 15px; margin-bottom: 20px; justify-content: center; }
+    .lang-btn { padding: 10px 20px; background: #222531; border: 2px solid #333; color: white; cursor: pointer; border-radius: 5px; font-weight: bold; transition: 0.3s; }
+    .lang-btn.active { background: #e50914; border-color: #e50914; }
+    .ep-sidebar { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; margin-top: 20px; }
+    .ep-btn { background: #222531; color: white; padding: 8px 15px; text-decoration: none; border-radius: 4px; white-space: nowrap; }
+    .ep-btn.current { background: #e50914; }
+</style>
+
+<div class="player-section">
+    <h2 style="margin-bottom: 5px;">{{ anime.title }}</h2>
+    <h4 style="color: #aaa; margin-bottom: 20px;">Episode {{ episode.episode_number }}: {{ episode.title }}</h4>
+
+    <div class="lang-btns">
+        {% if episode.hindi_url %}
+            <button class="lang-btn active" onclick="switchLang('{{ episode.hindi_url }}', this)">🇮🇳 Hindi Server</button>
+        {% endif %}
+        {% if episode.english_url %}
+            <button class="lang-btn {% if not episode.hindi_url %}active{% endif %}" onclick="switchLang('{{ episode.english_url }}', this)">🇬🇧 English Server</button>
+        {% endif %}
+    </div>
+
+    <div class="video-box">
+        <iframe id="kairoPlayer" src="{{ episode.hindi_url or episode.english_url }}" allowfullscreen></iframe>
+    </div>
+
+    <h4 style="margin-top: 20px;">All Episodes:</h4>
+    <div class="ep-sidebar">
+        {% for ep in all_episodes %}
+            <a href="/watch/{{ ep.id }}" class="ep-btn {% if ep.id == episode.id %}current{% endif %}">Ep {{ ep.episode_number }}</a>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+function switchLang(url, btn) {
+    document.getElementById('kairoPlayer').src = url;
+    document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+}
+</script>
+{% endblock %}
